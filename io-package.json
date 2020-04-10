@@ -1,0 +1,101 @@
+{
+	"common": {
+		"name": "alexawecker",
+		"version": "0.0.1",
+		"news": {
+			"0.0.1": {
+				"en": "initial release",
+				"de": "Erstveröffentlichung",
+				"ru": "Начальная версия",
+				"pt": "lançamento inicial",
+				"nl": "Eerste uitgave",
+				"fr": "Première version",
+				"it": "Versione iniziale",
+				"es": "Versión inicial",
+				"pl": "Pierwsze wydanie",
+				"zh-cn": "首次出版"
+			}
+		},
+		"title": "Alexa Wecker",
+		"titleLang": {
+			"en": "Alexa Wecker",
+			"de": "Alexa Wecker",
+			"ru": "Алекса Веккер",
+			"pt": "Alexa Wecker",
+			"nl": "Alexa Wecker",
+			"fr": "Alexa Wecker",
+			"it": "Alexa Wecker",
+			"es": "Alexa Wecker",
+			"pl": "Alexa Wecker",
+			"zh-cn": "亚历克斯·韦克（Alexa Wecker）"
+		},
+		"desc": {
+			"en": "Set radio station based on date and time",
+			"de": "Stellen Sie den Radiosender basierend auf Datum und Uhrzeit ein",
+			"ru": "Установите радиостанцию ​​на основе даты и времени",
+			"pt": "Definir estação de rádio com base na data e hora",
+			"nl": "Stel een radiostation in op basis van datum en tijd",
+			"fr": "Réglez la station de radio en fonction de la date et de l'heure",
+			"it": "Impostare la stazione radio in base alla data e all'ora",
+			"es": "Establecer la estación de radio según la fecha y la hora",
+			"pl": "Ustaw stację radiową na podstawie daty i godziny",
+			"zh-cn": "根据日期和时间设置广播电台"
+		},
+		"authors": [
+			"Denkra <kramer_dennis@t-online.de>"
+		],
+		"keywords": [
+			"Alexa",
+			"alarm",
+			"wecker"
+		],
+		"license": "MIT",
+		"platform": "Javascript/Node.js",
+		"main": "main.js",
+		"icon": "alexawecker.png",
+		"enabled": true,
+		"extIcon": "https://raw.githubusercontent.com/Denkra/ioBroker.alexawecker/master/admin/alexawecker.png",
+		"readme": "https://github.com/Denkra/ioBroker.alexawecker/blob/master/README.md",
+		"loglevel": "info",
+		"mode": "subscribe",
+		"type": "alarm",
+		"compact": true,
+		"connectionType": "local",
+		"dataSource": "poll",
+		"materialize": true,
+		"dependencies": [
+			{
+				"js-controller": ">=1.4.2"
+			}
+		]
+	},
+	"native": {
+		"option1": true,
+		"amount": "1",
+		"musicStations" : []
+	},
+	"objects": [],
+	"instanceObjects": [
+		{
+			"_id": "info",
+			"type": "channel",
+			"common": {
+				"name": "Information"
+			},
+			"native": {}
+		},
+		{
+			"_id": "info.connection",
+			"type": "state",
+			"common": {
+				"role": "indicator.connected",
+				"name": "Device or service connected",
+				"type": "boolean",
+				"read": true,
+				"write": false,
+				"def": false
+			},
+			"native": {}
+		}
+	]
+}
