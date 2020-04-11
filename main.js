@@ -35,7 +35,7 @@ class Alexawecker extends utils.Adapter {
 		// Initialize your adapter here
 
 		// Reset the connection indicator during startup
-		// this.setState('info.connection', false, true);
+		this.setState('info.connection', false, true);
 
 
 
@@ -57,7 +57,7 @@ class Alexawecker extends utils.Adapter {
 	}
 
 	async getAllRooms(){
-		const allRooms = [];
+		const allRooms = {};
 		const rooms = await this.getEnumAsync('rooms');
 		if (!rooms) {
 
@@ -65,9 +65,11 @@ class Alexawecker extends utils.Adapter {
 		} else {
 
 			const raeume  = rooms.result;
+			let arrayIndex = 0;
 			for (const room in raeume){
 				console.log(raeume[room].common.name);
-				allRooms.push(raeume[room].common.name);
+				allRooms[arrayIndex] = raeume[room].common.name;
+				arrayIndex = arrayIndex + 1;
 			}
 		}
 
@@ -78,17 +80,17 @@ class Alexawecker extends utils.Adapter {
 	async basicStatesCreate(){
 		console.log(`basicStatesCreate stare`);
 
-		const radiosenderSettings = this.config.musicStations;
-		const radiosender = [];
+		const radiosenderSettings = this.config.devices;
+		const radiosender = {};
 		if (!radiosenderSettings || radiosenderSettings !== []){
 			for (const i in radiosenderSettings) {
 				console.log(radiosenderSettings[i]);
-				radiosender.push(radiosenderSettings[i].Sender);
+				radiosender[i] = radiosenderSettings[i].Sender;
 			}
 
 		}
 		
-		console.log(radiosender);
+		console.log(JSON.stringify(radiosender));
 		this.log.info(JSON.stringify(radiosenderSettings));
 		const raum = await this.getAllRooms();
 		
@@ -152,6 +154,7 @@ class Alexawecker extends utils.Adapter {
 				native: {},
 			});
 
+
 			await this.extendObjectAsync(`${stateID}.Alexa_Wecker_Sender_auswahl`, {
 				type: 'state',
 				common: {
@@ -183,7 +186,7 @@ class Alexawecker extends utils.Adapter {
 			});
 
 		}
-
+		this.setState('info.connection', true, true);
 
 	}
 
@@ -194,6 +197,7 @@ class Alexawecker extends utils.Adapter {
 	onUnload(callback) {
 		try {
 			this.log.info('cleaned everything up...');
+			this.setState('info.connection', false, true);
 			callback();
 		} catch (e) {
 			callback();

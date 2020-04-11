@@ -9,7 +9,7 @@
             "request": "attach",
             "name": "Attach",
             "port": 9229,
-            "address": "192.168.1.121",
+            "address": "localhost",
             "skipFiles": [
                 "<node_internals>/**"
             ]

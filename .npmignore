@@ -32,3 +32,4 @@ admin/i18n
 
 # maintenance scripts
 maintenance/**
+launch.json

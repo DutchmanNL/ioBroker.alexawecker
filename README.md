@@ -1,4 +1,4 @@
-![Logo](admin/alexawecker.png)
+<img src="./admin/alexawecker.png" width="50" height="50">
 # ioBroker.alexawecker
 
 [![NPM version](http://img.shields.io/npm/v/iobroker.alexawecker.svg)](https://www.npmjs.com/package/iobroker.alexawecker)
@@ -16,8 +16,6 @@
 
 Set radio station based on date and time
 
-## Developer manual
-This section is intended for the developer. It can be deleted later
 
 ### Getting started
 
@@ -28,6 +26,7 @@ Adapter im Alpha. NICHT installieren
 
 ### 0.0.1
 * (Denkra) initial release
+
 
 ## License
 MIT License
