@@ -7,6 +7,9 @@
 // The adapter-core module gives you access to the core ioBroker functions
 // you need to create an adapter
 const utils = require('@iobroker/adapter-core');
+const schedule = require('node-schedule');
+const allAlarms = {};
+const timer = {};
 
 // Load your modules here, e.g.:
 // const fs = require('fs');
@@ -40,13 +43,8 @@ class Alexawecker extends utils.Adapter {
 
 
 
-		this.basicStatesCreate();
-
-
-		// The adapters config (in the instance object everything under the attribute 'native') is accessible via
-		// this.config:
-		this.log.info('config option1: ' + this.config.option1);
-		this.log.info('config option2: ' + this.config.amount);
+		await this.basicStatesCreate();
+		await this.times();
 
 		/*
 		For every state in the system there has to be also an object of type state
@@ -54,27 +52,6 @@ class Alexawecker extends utils.Adapter {
 		Because every adapter instance uses its own unique namespace variable names can't collide with other adapters variables
 		*/
 
-	}
-
-	async getAllRooms(){
-		const allRooms = {};
-		const rooms = await this.getEnumAsync('rooms');
-		if (!rooms) {
-
-			console.log(`Cannot get room data`);
-		} else {
-
-			const raeume  = rooms.result;
-			let arrayIndex = 0;
-			for (const room in raeume){
-				console.log(raeume[room].common.name);
-				allRooms[arrayIndex] = raeume[room].common.name;
-				arrayIndex = arrayIndex + 1;
-			}
-		}
-
-		console.log(allRooms);
-		return allRooms;
 	}
 
 	async basicStatesCreate(){
@@ -186,8 +163,74 @@ class Alexawecker extends utils.Adapter {
 			});
 
 		}
+		this.subscribeStates('*');
 		this.setState('info.connection', true, true);
 
+	}
+
+	async getAllRooms(){
+		const allRooms = {};
+		const rooms = await this.getEnumAsync('rooms');
+		if (!rooms) {
+
+			console.log(`Cannot get room data`);
+		} else {
+
+			const raeume  = rooms.result;
+			let arrayIndex = 0;
+			for (const room in raeume){
+				console.log(raeume[room].common.name);
+				allRooms[arrayIndex] = raeume[room].common.name;
+				arrayIndex = arrayIndex + 1;
+			}
+		}
+
+
+
+		console.log(allRooms);
+		return allRooms;
+	}
+
+	async times (){
+
+		const amount = parseInt(this.config.amount);
+		for (let position = 1; position <= amount; position++) {
+			const stateID = position <10 ? '0' + position : position; 
+			const hours = await this.getStateAsync (`alexawecker.0.${stateID}.Alexa_Wecker_Stunde`);
+			if (!hours) continue;
+			allAlarms[stateID] = {
+				hours:hours.val
+			};
+			console.log(`Get hour for alexawecker.0.${stateID}.Alexa_Wecker_Stunde : ${hours.val}`);
+
+			const minutes = await this.getStateAsync (`alexawecker.0.${stateID}.Alexa_Wecker_Minuten`);
+			if (!minutes) continue;
+			allAlarms[stateID].minutes = minutes.val;
+			console.log(`Get minutes for alexawecker.0.${stateID}.Alexa_Wecker_Minuten : ${minutes.val}`);
+
+		}
+
+		await this.sheduler();
+		
+	}
+
+	async sheduler (){
+		const amount = parseInt(this.config.amount);
+		for (let position = 1; position <= amount; position++) { 
+			const stateID = position <10 ? '0' + position : position;
+			const hour = allAlarms[stateID].hours;
+			const minute = allAlarms[stateID].minutes;
+			this.log.warn(`Timer ${stateID} wird gestartet für ${hour} Uhr ${minute}`);
+
+			const rule = new schedule.RecurrenceRule();
+			rule.hour = hour;
+			rule.minute = minute;
+			// rule.second = 30; 
+			timer[stateID] = schedule.scheduleJob(rule, () => {
+				this.log.info(`Timer ${stateID} wurde getriggert`);
+			});
+
+		}
 	}
 
 	/**
@@ -228,6 +271,7 @@ class Alexawecker extends utils.Adapter {
 		if (state) {
 			// The state was changed
 			this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
+			this.times();
 		} else {
 			// The state was deleted
 			this.log.info(`state ${id} deleted`);

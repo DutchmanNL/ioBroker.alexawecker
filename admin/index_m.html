@@ -100,6 +100,14 @@ let devices = [];
             <img src="alexawecker.png" class="logo">
         </div>
     </div>
+    <div class="row">
+
+        <div class="col s2 input-field">
+            <input type="number" class="value" id="amount" />
+            <label for="amount" class="translate">Set amount of wanted alarm</label>
+        </div>
+        
+    </div>
     <div id="settings">
         <table id="devices"></table>
         <div id="pager-devices"></div>
@@ -112,8 +120,8 @@ let devices = [];
                     <thead>
                     <tr>
                         <th data-name="_index"   style="width: 40px" class="translate blue">Id</th>
-                        <th data-name="ip"     style="width: 70%" class="translate blue">Radiosender</th>
-                        <th data-buttons="delete" style="width: 40px" class="blue">delete</th>
+                        <th data-name="Sender"     style="width: 70%" class="translate blue">Stations</th>
+                        <th data-buttons="delete" style="width: 40px" class="blue"></th>
                     </tr>
                     </thead>
                 </table>

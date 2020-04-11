@@ -27,6 +27,9 @@ Adapter im Alpha. NICHT installieren
 ### 0.0.1
 * (Denkra) initial release
 
+### 0.0.2
+* (Denkra) first working 
+
 
 ## License
 MIT License
