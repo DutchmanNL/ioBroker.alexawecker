@@ -8,7 +8,7 @@
 // you need to create an adapter
 const utils = require('@iobroker/adapter-core');
 const schedule = require('node-schedule');
-const allAlarms = {};
+const allItems = {};
 const timer = {};
 
 // Load your modules here, e.g.:
@@ -42,9 +42,8 @@ class Alexawecker extends utils.Adapter {
 
 
 
-
 		await this.basicStatesCreate();
-		await this.times();
+		await this.getAllStateData();		
 
 		/*
 		For every state in the system there has to be also an object of type state
@@ -53,6 +52,7 @@ class Alexawecker extends utils.Adapter {
 		*/
 
 	}
+
 
 	async basicStatesCreate(){
 		console.log(`basicStatesCreate stare`);
@@ -191,47 +191,77 @@ class Alexawecker extends utils.Adapter {
 		return allRooms;
 	}
 
-	async times (){
+	async getAllStateData (){
 
 		const amount = parseInt(this.config.amount);
 		for (let position = 1; position <= amount; position++) {
 			const stateID = position <10 ? '0' + position : position; 
 			const hours = await this.getStateAsync (`alexawecker.0.${stateID}.Alexa_Wecker_Stunde`);
 			if (!hours) continue;
-			allAlarms[stateID] = {
+			allItems[stateID] = {
 				hours:hours.val
 			};
 			console.log(`Get hour for alexawecker.0.${stateID}.Alexa_Wecker_Stunde : ${hours.val}`);
 
 			const minutes = await this.getStateAsync (`alexawecker.0.${stateID}.Alexa_Wecker_Minuten`);
 			if (!minutes) continue;
-			allAlarms[stateID].minutes = minutes.val;
+			allItems[stateID].minutes = minutes.val;
 			console.log(`Get minutes for alexawecker.0.${stateID}.Alexa_Wecker_Minuten : ${minutes.val}`);
-
-		}
-
-		await this.sheduler();
-		
-	}
-
-	async sheduler (){
-		const amount = parseInt(this.config.amount);
-		for (let position = 1; position <= amount; position++) { 
-			const stateID = position <10 ? '0' + position : position;
-			const hour = allAlarms[stateID].hours;
-			const minute = allAlarms[stateID].minutes;
-			this.log.warn(`Timer ${stateID} wird gestartet für ${hour} Uhr ${minute}`);
-
-			const rule = new schedule.RecurrenceRule();
-			rule.hour = hour;
-			rule.minute = minute;
-			// rule.second = 30; 
-			timer[stateID] = schedule.scheduleJob(rule, () => {
-				this.log.info(`Timer ${stateID} wurde getriggert`);
-			});
-
+			const activ = await this.getStateAsync (`alexawecker.0.${stateID}.Alexa_Wecker_aktiv`);
+			allItems[stateID].active = !activ ? false : activ.val ;
+			const lighton = await this.getStateAsync (`alexawecker.0.${stateID}.Alexa_Wecker_Licht`);
+			allItems[stateID].light = !lighton ? false : lighton.val ;
+			const radioon = await this.getStateAsync (`alexawecker.0.${stateID}.Alexa_Wecker_Radio`);
+			allItems[stateID].radioon = !radioon ? false : radioon.val ;
+			const volume = await this.getStateAsync (`alexawecker.0.${stateID}.Alexa_Lautstaerke`);
+			allItems[stateID].volume = !volume ? false : volume.val ;
+			const room = await this.getStateAsync (`alexawecker.0.${stateID}.Alexa_Geraet_auswahl`);
+			allItems[stateID].room = !room ? false : room.val ;
+			const station = await this.getStateAsync (`alexawecker.0.${stateID}.Alexa_Wecker_Sender_auswahl`);
+			allItems[stateID].station = !station ? false : station.val ;
+			await this.sheduler(stateID, hours.val, minutes.val);
+			console.log(allItems);
+			//this.log.warn(`Werte für Timer ${stateID} Radioon : ${radioon.val}, Lichton : ${lighton.val}, Aktiv : ${activ.val}, Lautstärke : ${volume.val}, Raum: ${room.val}, Sender : ${station.val}`);
 		}
 	}
+
+
+	async sheduler (stateID, hours, minutes){
+		try {
+
+			if (timer[stateID]) {
+				console.log(`Existing timer for ${stateID} cancelled`);
+				timer[stateID].cancel();
+			} else {
+				console.log(`No existing timer for ${stateID} to cancel`);
+			}
+
+			
+
+			if (allItems[stateID].active) {
+				this.log.info(`Timer ${stateID} wird gestartet für ${hours} Uhr ${minutes}`);
+				const rule = new schedule.RecurrenceRule();
+				rule.hour = hours;
+				rule.minute = minutes;
+				// rule.second = 30; 
+				timer[stateID] = schedule.scheduleJob(rule, () => {
+					this.log.warn(`Timer ${stateID} wurde getriggert`);
+				});	
+			} else {
+				console.log(`Timer ${stateID} wurde nicht gestartet.`);
+			}
+
+			
+
+
+		} catch (error) {
+			console.error(`[sheduler error] : ${error.message}, stack: ${error.stack}`);
+			this.log.error(`[sheduler error] : ${error.message}, stack: ${error.stack}`);
+				
+		}
+	}
+
+
 
 	/**
 	 * Is called when adapter shuts down - callback has to be called under any circumstances!
@@ -271,7 +301,7 @@ class Alexawecker extends utils.Adapter {
 		if (state) {
 			// The state was changed
 			this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
-			this.times();
+			this.getAllStateData();
 		} else {
 			// The state was deleted
 			this.log.info(`state ${id} deleted`);
