@@ -30,6 +30,9 @@ Adapter im Alpha. NICHT installieren
 ### 0.0.2
 * (Denkra) first working 
 
+### 0.0.3
+* (Denkra) light State change by trigger
+
 
 ## License
 MIT License

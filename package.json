@@ -1,6 +1,6 @@
 {
 	"name": "iobroker.alexawecker",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"description": "Set radio station based on date and time",
 	"author": {
 	  "name": "Denkra",
